@@ -1,0 +1,47 @@
+[Unit]
+Description=Node Access Manager - 代理节点访问控制服务
+Documentation=https://github.com/nodeaccessmanager/nam
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+User=root
+Group=root
+
+# 环境变量
+Environment="NAM_CONFIG=/etc/nam/config.yaml"
+
+# 可执行文件路径
+ExecStart=/usr/local/bin/nam start --config ${NAM_CONFIG} --daemon
+ExecStop=/usr/local/bin/nam stop
+ExecReload=/usr/local/bin/nam reload
+
+# PID 文件
+PIDFile=/var/run/nam.pid
+
+# 工作目录
+WorkingDirectory=/var/lib/nam
+
+# 重启策略
+Restart=on-failure
+RestartSec=10s
+
+# 资源限制
+LimitNOFILE=65535
+LimitNPROC=4096
+
+# 安全设置
+# 注意：由于 NAM 需要执行 iptables 和 ss 命令，必须以 root 权限运行
+# 如果需要更严格的安全策略，可以考虑使用 capabilities
+# CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW
+# AmbientCapabilities=CAP_NET_ADMIN CAP_NET_RAW
+# NoNewPrivileges=true
+
+# 日志
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nam
+
+[Install]
+WantedBy=multi-user.target
