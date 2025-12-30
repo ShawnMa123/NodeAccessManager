@@ -1,0 +1,36 @@
+global:
+  check_interval: 5
+  ban_duration: 60
+  strategy: FIFO
+  log_level: info
+  log_file: /var/log/nam.log
+  log_max_size: 100
+  log_max_backups: 5
+  log_max_age: 30
+  database_path: /var/lib/nam/nam.db
+  notification:
+    enabled: false
+    webhook_url: ""
+    events:
+      - ban
+      - overlimit
+
+rules:
+  - port: 443
+    protocol: vless
+    max_ips: 5
+    tag: "MainNode"
+    strategy: FIFO
+    ban_duration: 60
+    whitelist:
+      - 192.0.2.1
+      - 192.0.2.0/24
+    blacklist: []
+
+  - port: 8080
+    protocol: vmess
+    max_ips: 3
+    tag: "SharedNode"
+    whitelist: []
+    blacklist:
+      - 203.0.113.0/24
