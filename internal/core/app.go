@@ -406,6 +406,11 @@ func (a *App) GetStatus() *Status {
 	return status
 }
 
+// GetActiveBans 获取活跃的封禁列表
+func (a *App) GetActiveBans() []enforcer.BanRecord {
+	return a.enforcer.GetActiveBans()
+}
+
 // Status 运行状态
 type Status struct {
 	IsRunning bool
