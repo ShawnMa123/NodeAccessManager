@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"github.com/nodeaccessmanager/nam/cmd/nam/commands"
 )
 
 var (
@@ -13,10 +12,10 @@ var (
 )
 
 func main() {
-	fmt.Printf("NodeAccessManager (NAM) v%s\n", Version)
-	fmt.Printf("Build Time: %s\n", BuildTime)
-	fmt.Println("\nA proxy node access control tool for Linux VPS")
-	fmt.Println("For help, run: nam --help")
-	
-	os.Exit(0)
+	// 将版本信息传递给命令包
+	commands.Version = Version
+	commands.BuildTime = BuildTime
+
+	// 执行命令
+	commands.Execute()
 }
