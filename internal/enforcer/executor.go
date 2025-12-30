@@ -3,7 +3,6 @@ package enforcer
 import (
 	"fmt"
 	"os/exec"
-	"time"
 
 	"github.com/nodeaccessmanager/nam/pkg/utils"
 )

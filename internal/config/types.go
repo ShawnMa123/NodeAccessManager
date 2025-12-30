@@ -25,6 +25,7 @@ type GlobalConfig struct {
 
 	// 数据库设置
 	DatabasePath string `yaml:"database_path"` // SQLite 数据库路径
+	HistoryDays  int    `yaml:"history_days"`  // 历史数据保留天数
 
 	// 通知设置（可选）
 	Notification NotificationConfig `yaml:"notification,omitempty"`
@@ -83,6 +84,7 @@ func DefaultConfig() *Config {
 			LogMaxBackups: 5,
 			LogMaxAge:     30,
 			DatabasePath:  "/var/lib/nam/nam.db",
+			HistoryDays:   30,
 			Notification: NotificationConfig{
 				Enabled: false,
 				Events:  []string{"ban", "overlimit"},
