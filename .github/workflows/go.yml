@@ -6,12 +6,17 @@ name: Go
 on:
   push:
     branches: [ "main" ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "main" ]
+
+permissions:
+  contents: write
 
 jobs:
 
   build:
+    name: Test and Build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -21,8 +26,25 @@ jobs:
       with:
         go-version: '1.23'
 
-    - name: Build
-      run: go build -v ./...
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc musl-dev libsqlite3-dev
 
     - name: Test
       run: go test -v ./...
+
+    - name: Build Binary
+      run: |
+        # Use static linking for better compatibility
+        CGO_ENABLED=1 go build -ldflags "-s -w -extldflags '-static'" -tags 'sqlite_omit_load_extension' -o nam-linux-amd64 ./cmd/nam
+
+    - name: Upload Release Asset
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: nam-linux-amd64
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
