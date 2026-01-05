@@ -1,11 +1,90 @@
 # NodeAccessManager (NAM)
 
-[![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat&logo=go)](https://go.dev/)
+[![Go Version](https://img.shields.io/badge/Go-1.23+-00ADD8?style=flat&logo=go)](https://go.dev/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-> 专为 Linux VPS 设计的代理节点访问控制工具
+[English](#english) | [中文](#chinese)
 
-## 📖 项目概述
+<a name="english"></a>
+## 📖 Overview
+
+**NodeAccessManager (NAM)** is a Linux VPS proxy access control tool that provides **port-based concurrent IP limitation** for proxy tools like Sing-box/Xray through kernel-level connection management.
+
+### Key Features
+
+- ✅ **Single Binary** - 8-10MB single executable, no runtime dependencies.
+- 🔍 **Auto Discovery** - Automatically detects proxy processes and parses configurations.
+- 📊 **Real-time Monitor** - TUI real-time monitoring interface for connection status.
+- 🚫 **Smart Eviction** - FIFO/LIFO strategies, TCP Reset disconnection.
+- 🛡️ **Zero Intrusion** - Does not modify proxy core code.
+- 🔐 **Reliable** - Comprehensive logging, persistence, and error handling.
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+# Download latest version
+wget https://github.com/ShawnMa123/NodeAccessManager/releases/latest/download/nam-linux-amd64
+
+# Add execution permission
+chmod +x nam-linux-amd64
+sudo mv nam-linux-amd64 /usr/local/bin/nam
+
+# Initialize configuration
+sudo nam init
+```
+
+### Usage
+
+```bash
+# Start daemon
+sudo nam start --daemon
+
+# Real-time monitor
+sudo nam monitor
+
+# Check status
+nam status
+
+# Install as system service
+sudo nam install
+sudo systemctl start nam
+```
+
+## 📋 Features
+
+| Feature | Description |
+|---------|-------------|
+| **Auto Discovery** | Scan system processes → Locate config → Extract listening ports |
+| **Real-time Monitor** | Collect TCP states → Maintain sessions → Trigger policies |
+| **Smart Eviction** | FIFO/LIFO strategies → TCP Reset → iptables cooling bans |
+| **Visual Interface** | Real-time TUI panel → Connection list → Event logs → Charts |
+| **Access Control** | IP-level whitelist/blacklist → CIDR support |
+| **History** | SQLite persistence → Ban history → Traffic stats |
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────┐
+│                  User Interface                 │
+│    TUI Monitor  │  CLI Command  │  HTTP API     │
+└─────────┬───────────────┬─────────────┬─────────┘
+          │               │             │
+┌─────────┼───────────────┼─────────────┼─────────┐
+│         ▼               ▼             ▼         │
+│    Discovery  →  Monitor  →  Enforcer           │
+│     Module        Module      Module            │
+└─────────┬───────────────┬─────────────┬─────────┘
+          │               │             │
+          ▼               ▼             ▼
+    Config Store    SQLite DB     Log Files
+```
+
+---
+
+<a name="chinese"></a>
+## 📖 项目概述 (Project Overview)
 
 **NodeAccessManager (NAM)** 是一款通过内核层面的连接管理，为 Sing-box/Xray 等代理工具提供**基于端口的并发 IP 限制**能力的工具。
 
@@ -24,11 +103,11 @@
 
 ```bash
 # 下载最新版本
-wget https://github.com/nodeaccessmanager/nam/releases/latest/download/nam-linux-amd64
+wget https://github.com/ShawnMa123/NodeAccessManager/releases/latest/download/nam-linux-amd64
 
 # 添加执行权限
 chmod +x nam-linux-amd64
-mv nam-linux-amd64 /usr/local/bin/nam
+sudo mv nam-linux-amd64 /usr/local/bin/nam
 
 # 初始化配置
 sudo nam init
@@ -80,47 +159,47 @@ sudo systemctl start nam
     Config Store    SQLite DB     Log Files
 ```
 
-## 🛠️ 技术栈
+## 🛠️ 技术栈 (Tech Stack)
 
-- **语言**: Go 1.22+
-- **TUI 框架**: Bubble Tea + Lipgloss
-- **CLI 框架**: Cobra
-- **数据库**: SQLite
-- **日志**: Logrus
+- **Language**: Go 1.23+
+- **TUI Framework**: Bubble Tea + Lipgloss
+- **CLI Framework**: Cobra
+- **Database**: SQLite
+- **Logging**: Logrus
 
-## 📦 项目结构
+## 📦 项目结构 (Project Structure)
 
 ```
 .
-├── cmd/nam/              # 主程序入口
+├── cmd/nam/              # Main entry point (主程序入口)
 ├── internal/
-│   ├── config/           # 配置管理
-│   ├── core/             # 核心控制器
-│   ├── discovery/        # 自动发现模块
-│   ├── monitor/          # 监控模块
-│   ├── enforcer/         # 执行模块
-│   ├── storage/          # 数据持久化
-│   └── tui/              # TUI 界面
-├── pkg/utils/            # 工具函数
+│   ├── config/           # Configuration management (配置管理)
+│   ├── core/             # Core controller (核心控制器)
+│   ├── discovery/        # Auto discovery module (自动发现模块)
+│   ├── monitor/          # Monitoring module (监控模块)
+│   ├── enforcer/         # Enforcement module (执行模块)
+│   ├── storage/          # Data persistence (数据持久化)
+│   └── tui/              # TUI Interface (TUI 界面)
+├── pkg/utils/            # Utility functions (工具函数)
 └── go.mod
 ```
 
-## 🤝 贡献
+## 🤝 Contribution (贡献)
 
-欢迎提交 Issue 和 Pull Request！
+Welcome to submit Issues and Pull Requests! (欢迎提交 Issue 和 Pull Request！)
 
-## 📄 许可证
+## 📄 License (许可证)
 
 MIT License
 
-## 🙏 致谢
+## 🙏 Acknowledgements (致谢)
 
-本项目使用了以下优秀的开源项目：
+This project uses the following open source projects (本项目使用了以下优秀的开源项目):
 
-- [Bubble Tea](https://github.com/charmbracelet/bubbletea) - TUI 框架
-- [Cobra](https://github.com/spf13/cobra) - CLI 框架
-- [Logrus](https://github.com/sirupsen/logrus) - 日志库
+- [Bubble Tea](https://github.com/charmbracelet/bubbletea) - TUI Framework
+- [Cobra](https://github.com/spf13/cobra) - CLI Framework
+- [Logrus](https://github.com/sirupsen/logrus) - Logging Library
 
 ---
 
-**注意**: 本工具需要 root 权限运行，因为需要操作 iptables 和系统调用。
+**Note**: This tool requires root privileges to operate iptables and system calls. (本工具需要 root 权限运行，因为需要操作 iptables 和系统调用。)
