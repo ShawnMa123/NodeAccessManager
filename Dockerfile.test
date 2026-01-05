@@ -1,0 +1,28 @@
+# 用于本地测试构建的 Dockerfile
+FROM golang:1.23-alpine AS builder
+
+# 安装构建依赖
+RUN apk add --no-cache gcc musl-dev sqlite-dev git
+
+WORKDIR /app
+
+# 复制依赖文件
+COPY go.mod go.sum ./
+
+# 下载依赖
+RUN go mod download
+
+# 复制源代码
+COPY . .
+
+# 构建
+RUN CGO_ENABLED=1 go build -v -o /app/bin/nam ./cmd/nam
+
+# 最终镜像
+FROM alpine:latest
+
+RUN apk add --no-cache ca-certificates iptables
+
+COPY --from=builder /app/bin/nam /usr/local/bin/nam
+
+ENTRYPOINT ["/usr/local/bin/nam"]
