@@ -1,0 +1,25 @@
+FROM golang:1.23-bookworm
+
+# Install dependencies
+RUN apt-get update && apt-get install -y iptables iproute2 procps netcat-openbsd curl socat
+
+WORKDIR /app
+
+# Copy source
+COPY . .
+
+# Build nam
+RUN go build -o /usr/local/bin/nam ./cmd/nam
+
+# Build fake sing-box
+RUN go build -o /usr/local/bin/sing-box ./fake_singbox/main.go
+
+# Setup config
+RUN mkdir -p /etc/sing-box
+COPY fake_singbox/config.json /etc/sing-box/config.json
+
+# Copy entrypoint
+COPY e2e_entrypoint.sh /usr/local/bin/e2e_entrypoint.sh
+RUN chmod +x /usr/local/bin/e2e_entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/e2e_entrypoint.sh"]
