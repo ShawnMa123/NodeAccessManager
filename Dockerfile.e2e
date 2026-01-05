@@ -1,7 +1,7 @@
 FROM golang:1.23-bookworm
 
 # Install dependencies
-RUN apt-get update && apt-get install -y iptables iproute2 procps netcat-openbsd curl socat
+RUN apt-get update && apt-get install -y iptables iproute2 procps netcat-openbsd curl socat vim nano tmux
 
 WORKDIR /app
 
