@@ -6,6 +6,7 @@ package engine
 import (
 	"context"
 	"fmt"
+	"os"
 	"sort"
 	"sync"
 	"time"
@@ -299,6 +300,15 @@ func (e *Engine) event(at time.Time, kind, node, ip, note string) {
 	if len(e.events) > 200 {
 		e.events = e.events[len(e.events)-200:]
 	}
+	// Also going to stderr means the history survives a restart in journald.
+	line := fmt.Sprintf("%s %s", kind, note)
+	if node != "" {
+		line += " [" + node + "]"
+	}
+	if ip != "" {
+		line += " " + ip
+	}
+	fmt.Fprintln(os.Stderr, "nam: "+line)
 }
 
 // Status builds the read-only view the CLI renders.
@@ -378,7 +388,12 @@ func (e *Engine) SetLimit(node string, limit int) error {
 	if err := e.st.SetLimit(node, limit); err != nil {
 		return err
 	}
-	e.event(e.now(), "limit", node, "", fmt.Sprintf("上限改为 %d", limit))
+	// Changing the limit is an explicit admin action, so lift existing blocks
+	// on that node right away instead of waiting out the cooldown.
+	if err := e.st.ClearNodeCooldowns(node); err != nil {
+		return err
+	}
+	e.event(e.now(), "limit", node, "", fmt.Sprintf("上限改为 %d（已解除该节点的冷却）", limit))
 	return nil
 }
 
@@ -388,7 +403,14 @@ func (e *Engine) AllowAdd(entry string) error {
 	if err := e.st.AllowAdd(entry); err != nil {
 		return err
 	}
-	e.event(e.now(), "allow", "", entry, "加入白名单")
+	for _, en := range e.entries {
+		if ipkey.Match(entry, en.ip) {
+			if err := e.st.ClearCooldown(key(en.node, en.ipKey)); err != nil {
+				return err
+			}
+		}
+	}
+	e.event(e.now(), "allow", "", entry, "加入白名单（已解除该 IP 的冷却）")
 	return nil
 }
 

@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 )
@@ -146,6 +147,38 @@ func (s *State) SetCooldown(key string, until time.Time) error {
 	s.mu.Lock()
 	s.Cooldowns[key] = until.Unix()
 	s.mu.Unlock()
+	return s.save()
+}
+
+// ClearCooldown lets one IP back in immediately, used when an admin lifts a
+// block by hand.
+func (s *State) ClearCooldown(key string) error {
+	s.mu.Lock()
+	_, ok := s.Cooldowns[key]
+	delete(s.Cooldowns, key)
+	s.mu.Unlock()
+	if !ok {
+		return nil
+	}
+	return s.save()
+}
+
+// ClearNodeCooldowns forgets every block on one node. Raising a limit or
+// whitelisting someone must take effect at once instead of after the cooldown.
+func (s *State) ClearNodeCooldowns(node string) error {
+	prefix := node + "\x00"
+	s.mu.Lock()
+	n := 0
+	for k := range s.Cooldowns {
+		if strings.HasPrefix(k, prefix) {
+			delete(s.Cooldowns, k)
+			n++
+		}
+	}
+	s.mu.Unlock()
+	if n == 0 {
+		return nil
+	}
 	return s.save()
 }
 
