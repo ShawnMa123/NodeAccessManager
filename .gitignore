@@ -7,7 +7,6 @@
 
 # Test binary, built with `go test -c`
 *.test
-!Dockerfile.test
 
 # Output of the go coverage tool
 *.out
@@ -39,13 +38,3 @@ design/
 note
 *.log
 
-# Runtime data
-/var/lib/nam/
-/var/log/nam/
-/etc/nam/config.yaml
-
-# Database
-*.db
-*.db-journal
-*.db-wal
-*.db-shm
